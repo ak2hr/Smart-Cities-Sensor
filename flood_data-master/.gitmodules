@@ -1,0 +1,3 @@
+[submodule "hr_db_scripts"]
+	path = hr_db_scripts
+	url = https://github.com/uva-hydroinformatics-lab/hr_db_scripts.git
