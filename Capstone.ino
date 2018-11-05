@@ -3,28 +3,48 @@
 #define trigPin 13
 #define echoPin 12
 
-int base;
+int runningAvg;
+int baseline;
 EventTimer timer;
+int lastReportedValue;
 
 void setup() {
   Serial.begin (9600);
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
-  base = 0;
+  runningAvg = 0;
+  baseline = establishBaseline();
+  lastReportedValue = baseline;
+}
+
+int establishBaseline()
+{
+
+  int value = 0;
+  int iterations = 0;
+  timer.start(60000);
+  while(!timer.checkExpired())
+  {
+    value += getDistance();
+    iterations += 1;
+  }
+  return value / iterations;
 }
 
 void loop() {
+  /*
   for (int i = 0; i < 12; i++)
   {
     Serial.println("loopstart");
     timer.start(5000);
     while(!timer.checkExpired());
-    base += getDistance();
+    runningAvg += getDistance();
     Serial.println(base);
   }
   Serial.print("Averaging");
   Serial.println(base / 12);
-  base = 0;
+  runningAvg = 0;*/
+  
 }
 
 // Function based heavily off of Arduino tutorial code found here https://www.instructables.com/id/Simple-Arduino-and-HC-SR04-Example/
