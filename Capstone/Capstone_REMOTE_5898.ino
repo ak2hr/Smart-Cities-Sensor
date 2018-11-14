@@ -31,7 +31,6 @@ int runningAvg;
 int baseline;
 EventTimer timer;
 int lastReportedValue;
-int thisReportedValue;
 bool fastMode;
 
 
@@ -42,23 +41,13 @@ void setup() {
   pinMode(echoPin, INPUT);
   runningAvg = 0;
   baseline = establishBaseline();
-  thisReportedValue = baseline;
+  lastReportedValue = baseline;
   fastMode = false;
   ttn.join(appEui, appKey);
 }
 
 void loop() {
 
-    if (thisReportedValue > (lastReportedValue >> 4))
-    {
-        fastMode = true;
-    }
-    else
-    {
-        fastMode = false;
-    }
-
-    lastReportedValue = thisReportedValue;
   if(fastMode) {
     sendData(getDistance);
     sleepLowPower(fastModeIntervalTime);

@@ -1,6 +1,5 @@
 #include <eventtimer.h>
 #include <TheThingsNetwork.h>
-#include "LowPower.h"
 
 // Set your AppEUI and AppKey
 const char *appEui = "0000000000000000";
@@ -31,7 +30,6 @@ int runningAvg;
 int baseline;
 EventTimer timer;
 int lastReportedValue;
-int thisReportedValue;
 bool fastMode;
 
 
@@ -42,30 +40,18 @@ void setup() {
   pinMode(echoPin, INPUT);
   runningAvg = 0;
   baseline = establishBaseline();
-  thisReportedValue = baseline;
+  lastReportedValue = baseline;
   fastMode = false;
   ttn.join(appEui, appKey);
 }
 
 void loop() {
 
-    if (thisReportedValue > (lastReportedValue >> 4))
-    {
-        fastMode = true;
-    }
-    else
-    {
-        fastMode = false;
-    }
-
-    lastReportedValue = thisReportedValue;
   if(fastMode) {
-    sendData(getDistance);
-    sleepLowPower(fastModeIntervalTime);
+    
   }
   else {
-    sendData(getDistance);
-    sleepLowPower(slowModeIntervalTime);
+    
   }
   
 }
@@ -114,10 +100,7 @@ void sendData(long measurement) {
 }
 
 //sleepLowPower - Puts the arduino to sleep for a specified amount of time------------------------------------------------------------------------------------------
-void sleepLowPower(int seconds) {
-  int sleepTime = seconds/8;
-  for(int i = 0; i < sleepTime; i++) {
-    LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
-  }
+void sleepLowPower() {
+  
 }
 

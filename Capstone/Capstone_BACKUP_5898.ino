@@ -47,18 +47,33 @@ void setup() {
   ttn.join(appEui, appKey);
 }
 
+<<<<<<< HEAD
+void loop() 
+{
+  // Check if most recently recorded value is within 6.25%. This value used instead of 5% so bit-shifting can be used
+  // as this is slightly less computationally intensive than multiplying by 0.05
+  if (thisReportedValue > (lastReportedValue >> 4))
+  {
+    fastMode = true;
+  }
+  else
+  {
+    fastMode = false;
+  }
+  
+  lastReportedValue = thisReportedValue;
+  if(fastMode) 
+  {
+    // for loop to force minute of sleep
+    // take reading
+  }
+  else 
+  {
+    // for loop to force 15 minutes of sleep
+    // take reading
+=======
 void loop() {
 
-    if (thisReportedValue > (lastReportedValue >> 4))
-    {
-        fastMode = true;
-    }
-    else
-    {
-        fastMode = false;
-    }
-
-    lastReportedValue = thisReportedValue;
   if(fastMode) {
     sendData(getDistance);
     sleepLowPower(fastModeIntervalTime);
@@ -66,9 +81,11 @@ void loop() {
   else {
     sendData(getDistance);
     sleepLowPower(slowModeIntervalTime);
+>>>>>>> cc91d154264a54228a2c4c95f3f820a89759a256
   }
   
 }
+
 
 //getDistance - Function that gets a single distance point from the ultrasonic sensor-----------------------------------------------------------------------
 // Function based heavily off of Arduino tutorial code found here https://www.instructables.com/id/Simple-Arduino-and-HC-SR04-Example/

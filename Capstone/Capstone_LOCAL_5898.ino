@@ -1,6 +1,5 @@
 #include <eventtimer.h>
 #include <TheThingsNetwork.h>
-#include "LowPower.h"
 
 // Set your AppEUI and AppKey
 const char *appEui = "0000000000000000";
@@ -47,28 +46,33 @@ void setup() {
   ttn.join(appEui, appKey);
 }
 
-void loop() {
-
-    if (thisReportedValue > (lastReportedValue >> 4))
-    {
-        fastMode = true;
-    }
-    else
-    {
-        fastMode = false;
-    }
-
-    lastReportedValue = thisReportedValue;
-  if(fastMode) {
-    sendData(getDistance);
-    sleepLowPower(fastModeIntervalTime);
+void loop() 
+{
+  // Check if most recently recorded value is within 6.25%. This value used instead of 5% so bit-shifting can be used
+  // as this is slightly less computationally intensive than multiplying by 0.05
+  if (thisReportedValue > (lastReportedValue >> 4))
+  {
+    fastMode = true;
   }
-  else {
-    sendData(getDistance);
-    sleepLowPower(slowModeIntervalTime);
+  else
+  {
+    fastMode = false;
+  }
+  
+  lastReportedValue = thisReportedValue;
+  if(fastMode) 
+  {
+    // for loop to force minute of sleep
+    // take reading
+  }
+  else 
+  {
+    // for loop to force 15 minutes of sleep
+    // take reading
   }
   
 }
+
 
 //getDistance - Function that gets a single distance point from the ultrasonic sensor-----------------------------------------------------------------------
 // Function based heavily off of Arduino tutorial code found here https://www.instructables.com/id/Simple-Arduino-and-HC-SR04-Example/
@@ -114,10 +118,7 @@ void sendData(long measurement) {
 }
 
 //sleepLowPower - Puts the arduino to sleep for a specified amount of time------------------------------------------------------------------------------------------
-void sleepLowPower(int seconds) {
-  int sleepTime = seconds/8;
-  for(int i = 0; i < sleepTime; i++) {
-    LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
-  }
+void sleepLowPower() {
+  
 }
 
