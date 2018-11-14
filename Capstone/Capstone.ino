@@ -1,4 +1,17 @@
 #include <eventtimer.h>
+#include <TheThingsNetwork.h>
+
+// Set your AppEUI and AppKey
+const char *appEui = "0000000000000000";
+const char *appKey = "00000000000000000000000000000000";
+
+#define loraSerial Serial1
+#define debugSerial Serial
+
+// Replace REPLACE_ME with TTN_FP_EU868 or TTN_FP_US915
+#define freqPlan TTN_FP_US915
+
+TheThingsNetwork ttn(loraSerial, debugSerial, freqPlan);
 
 
 //Pins
@@ -20,14 +33,16 @@ int lastReportedValue;
 bool fastMode;
 
 
-void setup() {
-  Serial.begin (9600);
+void setup() {  
+  loraSerial.begin(57600);
+  debugSerial.begin(9600);
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
   runningAvg = 0;
   baseline = establishBaseline();
   lastReportedValue = baseline;
   fastMode = false;
+  ttn.join(appEui, appKey);
 }
 
 void loop() {
@@ -38,13 +53,12 @@ void loop() {
   else {
     
   }
-
   
 }
 
 //getDistance - Function that gets a single distance point from the ultrasonic sensor-----------------------------------------------------------------------
 // Function based heavily off of Arduino tutorial code found here https://www.instructables.com/id/Simple-Arduino-and-HC-SR04-Example/
-int getDistance()
+long getDistance()
 {
   long duration, distance;
   digitalWrite(trigPin, LOW);  // Added this line
@@ -76,8 +90,13 @@ int establishBaseline()
 }
 
 //sendData - Sends the flood level reading data point to the Things Network/Database------------------------------------------------------------------------
-void sendData() {
-
+void sendData(long measurement) {
+  byte payload[4];
+  payload[0] = (measurement & 0xFF000000) >> 24;
+  payload[1] = (measurement & 0x00FF0000) >> 16;
+  payload[2] = (measurement & 0x0000FF00) >> 8;
+  payload[3] = (measurement & 0x000000FF);
+  ttn.sendBytes(payload, sizeof(payload));
 }
 
 //sleepLowPower - Puts the arduino to sleep for a specified amount of time------------------------------------------------------------------------------------------
