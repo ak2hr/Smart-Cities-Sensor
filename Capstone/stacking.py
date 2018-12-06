@@ -116,7 +116,7 @@ sql_command = """
  Long DECIMAL,
  variable VARCHAR(10),
  value FLOAT,
- location_ID VARCHAR(10)
+ location_ID VARCHAR(10),
  LatLong VARCHAR(50));"""
  #event_date --> DATE??? TIMESTAMP?
 #
