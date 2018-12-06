@@ -99,31 +99,35 @@ Values.insert(loc=0, column='value_ID', value=seriesKey)
 #print(valuesTable.variable.dtype) --> object
 #print(valuesTable.value.dtype) --> float64
 
-# import sqlite3
-# connection = sqlite3.connect("for_RF.db")
-#
-# cursor = connection.cursor()
+import sqlite3
+connection = sqlite3.connect("for_RF.db")
+
+cursor = connection.cursor()
 
 ## Delete table to restart
 #cursor.execute("""DROP TABLE event;""")
 
 ## Creating corresponding SQL table
-# sql_command = """
-# CREATE TABLE event (
-# value_ID FLOAT PRIMARY KEY,
-# event_date VARCHAR(10),
-# variable VARCHAR(10),
-# value FLOAT);"""
-# #event_date --> DATE??? TIMESTAMP?
+sql_command = """
+ CREATE TABLE fevent (
+ value_ID FLOAT PRIMARY KEY,
+ event_date VARCHAR(10),
+ Lat DECIMAL,
+ Long DECIMAL,
+ variable VARCHAR(10),
+ value FLOAT,
+ location_ID VARCHAR(10)
+ LatLong VARCHAR(50));"""
+ #event_date --> DATE??? TIMESTAMP?
 #
-# cursor.execute(sql_command)
+cursor.execute(sql_command)
 #
-# for p in Values:
-#     format_str = """INSERT INTO event (value_ID, event_date, variable, value, location_ID)
-#     VALUES ("{value_ID}", "{event_date}", "{variable}", "{value}", "{location_ID}");"""
-#
-#     sql_command = format_str.format(value_ID=p[0], event_date=p[1], variable=p[2], value = p[3], location_ID = p[4])
-#     cursor.execute(sql_command)
+for p in Values:
+    format_str = """INSERT INTO fevent (value_ID, event_date, Lat, Long, variable, value, location_ID, LatLong)
+    VALUES ("{value_ID}", "{event_date}", "{Lat}", "{Long}", "{variable}", "{value}", "{location_ID}", "{LatLong}");"""
+
+    sql_command = format_str.format(value_ID=p[0], event_date=p[1], Lat=p[2], Long=p[3], variable=p[4], value = p[5], location_ID = p[6], LatLong=p[7])
+    cursor.execute(sql_command)
 
 
 
