@@ -1,10 +1,9 @@
+#include <LowPower.h>
+
 #include <eventtimer.h>
 #include <TheThingsNetwork.h>
-#include "LowPower.h"
-
-// Set your AppEUI and AppKey
-const char *appEui = "0000000000000000";
-const char *appKey = "00000000000000000000000000000000";
+const char *appEui = "70B3D57ED0014EEF";
+const char *appKey = "3E52FBD5CF59E2C040D14DFD63552DAF";
 
 #define loraSerial Serial1
 #define debugSerial Serial
@@ -21,8 +20,9 @@ TheThingsNetwork ttn(loraSerial, debugSerial, freqPlan);
 
 
 //Const Variables
-const int slowModeIntervalTime = 15*60;
-const int fastModeIntervalTime = 60;
+// Values lowered for monitoring values during testing
+const int slowModeIntervalTime = 10; //15*60
+const int fastModeIntervalTime = 1; //60
 
 
 
@@ -38,12 +38,13 @@ bool fastMode;
 void setup() {  
   loraSerial.begin(57600);
   debugSerial.begin(9600);
-  pinMode(trigPin, OUTPUT);
-  pinMode(echoPin, INPUT);
+  pinMode(A0, INPUT);
   runningAvg = 0;
   baseline = establishBaseline();
   thisReportedValue = baseline;
   fastMode = false;
+  ttn.showStatus();
+  debugSerial.println("-- JOIN");
   ttn.join(appEui, appKey);
 }
 
@@ -60,32 +61,25 @@ void loop() {
 
     lastReportedValue = thisReportedValue;
   if(fastMode) {
-    sendData(getDistance);
+    sendData(getDistance());
     sleepLowPower(fastModeIntervalTime);
   }
   else {
-    sendData(getDistance);
+    sendData(getDistance());
     sleepLowPower(slowModeIntervalTime);
   }
-  
+  delay(5000);
 }
 
 //getDistance - Function that gets a single distance point from the ultrasonic sensor-----------------------------------------------------------------------
 // Function based heavily off of Arduino tutorial code found here https://www.instructables.com/id/Simple-Arduino-and-HC-SR04-Example/
-long getDistance()
+int getDistance()
 {
-  long duration, distance;
-  digitalWrite(trigPin, LOW);  // Added this line
-  delayMicroseconds(2); // Added this line
-  timer.start(2);
-  while(!timer.checkExpired()){;}
-  digitalWrite(trigPin, HIGH);
-  timer.start(10);
-  while(!timer.checkExpired()){;}
-  digitalWrite(trigPin, LOW);
-  duration = pulseIn(echoPin, HIGH);
-  distance = (duration/2) / 29.1;
-  return distance;
+  float val = analogRead(A0) * 5.0/1023;
+  float cm = val/0.0049;
+
+  int data = cm;
+  return data;
 }
 
 //establishBaseline - sets the value of the unflooded street distance---------------------------------------------------------------------------------------
@@ -104,12 +98,10 @@ int establishBaseline()
 }
 
 //sendData - Sends the flood level reading data point to the Things Network/Database------------------------------------------------------------------------
-void sendData(long measurement) {
-  byte payload[4];
-  payload[0] = (measurement & 0xFF000000) >> 24;
-  payload[1] = (measurement & 0x00FF0000) >> 16;
-  payload[2] = (measurement & 0x0000FF00) >> 8;
-  payload[3] = (measurement & 0x000000FF);
+void sendData(int measurement) {
+  byte payload[2];
+  payload[0] = (measurement & 0xFF00) >> 8;
+  payload[1] = (measurement & 0x00FF);
   ttn.sendBytes(payload, sizeof(payload));
 }
 
