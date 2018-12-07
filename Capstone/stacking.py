@@ -1,6 +1,12 @@
 
 # importing pandas module
 import pandas as pd
+import csv
+import os
+from datetime import datetime
+from dateutil.parser import parse
+import time
+import string
 
 # reading csv file
 data = pd.read_csv("for_RF_model.csv")
@@ -75,21 +81,28 @@ Values.insert(loc=0, column='value_ID', value=seriesKey)
 #######################################################
 # CONVERTING EVENT DATE TO datetime
 
-# #Replace underscores with blank spaces
-# data["event_date"] = data["event_date"] + ":00 2017"
-# saved_column = data.event_date
-# #saved_column = saved_column.replace("_", " ")
-# #mystring.replace("_", " ")
-# print(saved_column.head())
-# for index row in data.iterrows():
-#     datetime.strptime(row, "%b_%d_%H%M %Y").strftime("%Y-%m-%d %H:%M")
+# To read the csv file into python
+dirname = os.path.dirname(__file__)
+path = os.path.join(dirname, "for_RF_model.csv")
+data = pd.read_csv(path, sep=",")
 
-#Convert Event date string into a datetime string
-#datetime.strptime(saved_column, "%b %d %H%M %Y").strftime("%Y-%m-%d %H:%M")
-#conv =time.strptime(saved_column, "%b %d %H%M %Y")
-#time.strftime("%Y-%m-%d %H:%M", conv)
-#Convert Datetime String to Datetime
-#datetime_object = datetime.strptime((?), '%Y-%m-%d %H:%M')
+print(data.head())
+print(type(data['event_date'][0]))
+
+
+data["event_date"] = data["event_date"] + ":00 2017"
+saved_column = data.event_date
+saved_column = saved_column.replace("_", " ")
+print(saved_column.head())
+for index,row in data.iterrows():
+    if row['event_date'][0:5] == "March":
+        datetime_ed = datetime.strptime(row['event_date'], "%B_%d_%H:%M %Y").strftime("%Y-%m-%d %H:%M")
+    elif row['event_date'][0:5] == "Aug18":
+        row['event_date1'] = string.replace(row['event_date'],'Aug18', 'Aug')
+        datetime_ed = datetime.strptime(row['event_date1'], "%b_%d_%H:%M %Y").strftime("%Y-%m-%d %H:%M")
+        #print(row['event_date'])
+    else:
+        datetime_ed = datetime.strptime(row['event_date'], "%b_%d_%H:%M %Y").strftime("%Y-%m-%d %H:%M")
 
 #####################################################
 ## MAKING THE CONNECTION TO SQL SERVER
