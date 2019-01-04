@@ -106,24 +106,18 @@ for index,row in data.iterrows():
 
 #####################################################
 ## MAKING THE CONNECTION TO SQL SERVER
-
-#print(valuesTable.value_ID.dtype) --> float64
-#print(valuesTable.event_date.dtype) --> object
-#print(valuesTable.variable.dtype) --> object
-#print(valuesTable.value.dtype) --> float64
-
 import sqlite3
-connection = sqlite3.connect("for_RF.db")
+connection = sqlite3.connect("fdata.db", timeout=10)
 
 cursor = connection.cursor()
 
 ## Delete table to restart
-#cursor.execute("""DROP TABLE event;""")
+#cursor.execute("""DROP TABLE fevent;""")
 
 ## Creating corresponding SQL table
 sql_command = """
  CREATE TABLE fevent (
- value_ID FLOAT PRIMARY KEY,
+ value_ID INTEGER PRIMARY KEY,
  event_date VARCHAR(10),
  Lat DECIMAL,
  Long DECIMAL,
@@ -133,14 +127,28 @@ sql_command = """
  LatLong VARCHAR(50));"""
  #event_date --> DATE??? TIMESTAMP?
 #
-cursor.execute(sql_command)
-#
-for p in Values:
-    format_str = """INSERT INTO fevent (value_ID, event_date, Lat, Long, variable, value, location_ID, LatLong)
-    VALUES ("{value_ID}", "{event_date}", "{Lat}", "{Long}", "{variable}", "{value}", "{location_ID}", "{LatLong}");"""
+#cursor.execute(sql_command)
+#print(len(Values))
+c=list(zip(*[Values[col] for col in Values]))
+#print(c[0])
 
-    sql_command = format_str.format(value_ID=p[0], event_date=p[1], Lat=p[2], Long=p[3], variable=p[4], value = p[5], location_ID = p[6], LatLong=p[7])
-    cursor.execute(sql_command)
+for i in c:
+ 
+ format_str = """INSERT INTO fevent (value_ID, event_date, Lat, Long, variable, value, location_ID, LatLong)
+ VALUES (NULL, "{event_date}", "{Lat}", "{Long}", "{variable}", "{value}", "{location_ID}", "{LatLong}");"""
+ sql_command = format_str.format(event_date=i[1], Lat=i[2], Long=i[3], variable=i[4], value = i[5], location_ID = i[6], LatLong=i[7])
+ cursor.execute(sql_command)
+ connection.commit()
 
 
+##Testing: just putting in a row of 1's
+#format_str = """INSERT INTO fevent (value_ID, event_date, Lat, Long, variable, value, location_ID, LatLong)
+ #VALUES (NULL, "{event_date}", "{Lat}", "{Long}", "{variable}", "{value}", "{location_ID}", "{LatLong}");"""
+#sql_command = format_str.format(event_date=2, Lat=2, Long=2, variable=2, value = 1, location_ID =1, LatLong=1)
+#cursor.execute(sql_command)
+
+#pd.read_sql_query("SELECT * FROM fevent", connection)
+
+connection.commit()
+connection.close()
 
