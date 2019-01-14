@@ -11,7 +11,7 @@ import string
 # reading csv file
 data = pd.read_csv("for_RF_model.csv")
 # displaying  data frame
-# print(data.head())
+#print(data.head())
 print("Original table dimensions:", data.shape)
 
 # Add a LatLong column to the data to pair the Lat and Long data
@@ -19,40 +19,41 @@ data['Lat'] = data['Lat'].astype(str)
 data['Long'] = data['Long'].astype(str)
 data["LatLong"] = data["Lat"].map(str) + data["Long"]
 
-#undata = data.groupby(['LatLong']).size().reset_index().rename(columns={0:'count'})
-#print(undata[0:10])
+#Using chunking to shorten the run time
+shortTable = data[0:10]
 
-################################################
+###############################################################################
 # CREATING THE LOCATION TABLE
 
 # Data frame of unique LatLong data
-latlong = data.filter(['Lat', 'Long'], axis=1)
+latlong = shortTable.filter(['Lat', 'Long'], axis=1)
 unlocation = latlong.groupby(['Lat', 'Long']).size().reset_index().rename(columns={0: 'count'})
-#print(unlocation[0:10])
 Location = unlocation.drop(['count'], axis=1).reindex(columns=['Lat', 'Long', 'Street', 'Description'])
-Location["LatLong"] = Location["Lat"].map(str) + Location["Long"]
-unlocation2 = Location.groupby(['LatLong']).size().reset_index().rename(columns={0:'count'})
+Location.insert(0, "LatLong", Location["Lat"].map(str) + Location["Long"])
+
+#Test The uniqueness
+#unlocation2 = Location.groupby(['LatLong']).size().reset_index().rename(columns={0:'count'})
 #print(unlocation2[0:10])
-#print(Location.shape)
 
-#### If the location is not already in the database
-#### Insert into SQLite
-#connection = sqlite3.connect("fdata.db", timeout=10)
-#cursor = connection.cursor()
+#### If the location is not already in the database insert into SQLite
+connection = sqlite3.connect("fdata.db", timeout=10)
+cursor = connection.cursor()
 
-#for index, row in Location.iterrows():
-    #if Location["LatLong"]
+for index, row in Location.iterrows():
+    cursor.execute("SELECT LatLong FROM locations WHERE LatLong = ?", (row['LatLong'],))
+    match = cursor.fetchall()
+    if len(match) == 0:
+        cursor.execute('insert into locations values(?,?,?,?,?)', row)
+        connection.commit()
 
-
-
-# Creating location_ID
-#locationKey = list(range(len(unlocation)))
-#locationSeries = pd.Series(locationKey)
-#Location.insert(loc=0, column='location_ID', value=locationKey)
-# print(Location[1:10])
+connection.commit()
+connection.close()
 
 #################################################
 # CREATING THE TYPE TABLE
+
+#statistic = shortTable.head()
+#print(statistic)
 
 #################################################
 # CREATING THE VALUES TABLE
