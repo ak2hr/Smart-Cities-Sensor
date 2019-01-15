@@ -47,13 +47,44 @@ for index, row in Location.iterrows():
         connection.commit()
 
 connection.commit()
-connection.close()
+
 
 #################################################
 # CREATING THE TYPE TABLE
 
-#statistic = shortTable.head()
-#print(statistic)
+typetable = shortTable.drop(['OID_', 'Lat', 'Long', 'LatLong', 'event_date'], axis=1)
+statistic = list(typetable)
+description = list()
+
+#types = pd.DataFrame({'Statistic':statistic, 'Description': description})
+
+
+for stat in statistic:
+    cursor.execute("SELECT Statistic FROM types WHERE Statistic = ?", (stat,))
+    statmatch = cursor.fetchall()
+    if len(statmatch) == 0:
+        if stat == ('rh' or 'max15' or 'hrs2' or 'hrs72'):
+            cursor.execute('insert into types values(?,?)', (stat, 'Rainfall'))
+            connection.commit()
+        elif stat == ('td_3av' or 'td_3l' or 'td_3h'):
+            cursor.execute('insert into types values(?,?)', (stat, 'Tide Level'))
+            connection.commit()
+        elif stat == ('AWDR' or 'AWND' or 'WGF6'):
+            cursor.execute('insert into types values(?,?)', (stat, 'Wind Speed'))
+            connection.commit()
+        elif stat == ('gw'):
+            cursor.execute('insert into types values(?,?)', (stat, 'Groundwater Level'))
+            connection.commit()
+        elif stat == ('f_nf'):
+            cursor.execute('insert into types values(?,?)', (stat, 'Flood Indicator'))
+            connection.commit()
+        else:
+            cursor.execute('insert into types values(?,?)', (stat, 'Topographic'))
+            connection.commit()
+
+connection.commit()
+connection.close()
+
 
 #################################################
 # CREATING THE VALUES TABLE
