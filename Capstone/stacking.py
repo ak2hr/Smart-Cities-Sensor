@@ -90,28 +90,28 @@ connection.commit()
 #%%
 # CONVERTING EVENT DATE TO datetime
 
-# To read the csv file into python
-#dirname = os.path.dirname(__file__)
-#path = os.path.join(dirname, "for_RF_model.csv")
-#data = pd.read_csv(path, sep=",")
+"""To read the csv file into python
+dirname = os.path.dirname(__file__)
+path = os.path.join(dirname, "for_RF_model.csv")
+data = pd.read_csv(path, sep=",")
 
-#print(data.head())
-#print(type(data['event_date'][0]))
+print(data.head())
+print(type(data['event_date'][0]))
 
-#data["event_date"] = data["event_date"] + ":00 2017"
-#saved_column = data.event_date
-#saved_column = saved_column.replace("_", " ")
-#print(saved_column.head())
-#for index, row in data.iterrows():
-    #if row['event_date'][0:5] == "March":
-        #datetime_ed = datetime.strptime(row['event_date'], "%B_%d_%H:%M %Y").strftime("%Y-%m-%d %H:%M")
-    #elif row['event_date'][0:5] == "Aug18":
-        #row['event_date1'] = string.replace(row['event_date'], 'Aug18', 'Aug')
-        #datetime_ed = datetime.strptime(row['event_date1'], "%b_%d_%H:%M %Y").strftime("%Y-%m-%d %H:%M")
-        # print(row['event_date'])
-    #else:
-        #datetime_ed = datetime.strptime(row['event_date'], "%b_%d_%H:%M %Y").strftime("%Y-%m-%d %H:%M")
-
+data["event_date"] = data["event_date"] + ":00 2017"
+saved_column = data.event_date
+saved_column = saved_column.replace("_", " ")
+print(saved_column.head())
+for index, row in data.iterrows():
+    if row['event_date'][0:5] == "March":
+        datetime_ed = datetime.strptime(row['event_date'], "%B_%d_%H:%M %Y").strftime("%Y-%m-%d %H:%M")
+    elif row['event_date'][0:5] == "Aug18":
+        row['event_date1'] = string.replace(row['event_date'], 'Aug18', 'Aug')
+        datetime_ed = datetime.strptime(row['event_date1'], "%b_%d_%H:%M %Y").strftime("%Y-%m-%d %H:%M")
+        print(row['event_date'])
+    else:
+        datetime_ed = datetime.strptime(row['event_date'], "%b_%d_%H:%M %Y").strftime("%Y-%m-%d %H:%M")
+"""
 #%%
 # CREATING THE VALUES TABLE
 
@@ -142,11 +142,12 @@ connection.close() #close the connection
 
 #%%
 ## TESTING THE DATABASE
+"""
+connection = sqlite3.connect("fdata.db", timeout=10)
+cursor = connection.cursor()
 
-#connection = sqlite3.connect("fdata.db", timeout=10)
-#cursor = connection.cursor()
+ pd.read_sql_query("SELECT * FROM fevent", connection)
 
-# pd.read_sql_query("SELECT * FROM fevent", connection)
-
-#connection.commit()
-#connection.close()
+connection.commit()
+connection.close()
+"""
