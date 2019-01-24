@@ -1,4 +1,6 @@
-# importing pandas module
+#INSERTING CSV FILES INTO FLOOD EVENT DATABASE
+
+# importing modules
 import pandas as pd
 import sqlite3
 import csv
@@ -8,39 +10,37 @@ from dateutil.parser import parse
 import time
 import string
 
-# reading csv file
-data = pd.read_csv("for_RF_model.csv")
-# displaying  data frame
-#print(data.head())
-print("Original table dimensions:", data.shape)
+data = pd.read_csv("for_RF_model.csv") # reading csv file
+#print("Original table dimensions:", data.shape)  # displaying data frame
 
 # Add a LatLong column to the data to pair the Lat and Long data
 data['Lat'] = data['Lat'].astype(str)
 data['Long'] = data['Long'].astype(str)
 data["LatLong"] = data["Lat"].map(str) + data["Long"]
 
-#Using chunking to shorten the run time
+#Shorten the table and use "chunking" to shorten the run time
 shortTable = data[0:10]
 
-###############################################################################
+#%%
 # CREATING THE LOCATION TABLE
 
 # Data frame of unique LatLong data
-latlong = shortTable.filter(['Lat', 'Long'], axis=1)
-unlocation = latlong.groupby(['Lat', 'Long']).size().reset_index().rename(columns={0: 'count'})
+latlong = shortTable.filter(['Lat', 'Long'], axis=1) 
+unlocation = latlong.groupby(['Lat', 'Long']).size().reset_index().rename(columns={0: 'count'}) 
 Location = unlocation.drop(['count'], axis=1).reindex(columns=['Lat', 'Long', 'Street', 'Description'])
-Location.insert(0, "LatLong", Location["Lat"].map(str) + Location["Long"])
+Location.insert(0, "location_ID", Location["Lat"].map(str) + Location["Long"])
 
 #Test The uniqueness
 #unlocation2 = Location.groupby(['LatLong']).size().reset_index().rename(columns={0:'count'})
 #print(unlocation2[0:10])
 
-#### If the location is not already in the database insert into SQLite
+# Open the SQLite connection
 connection = sqlite3.connect("fdata.db", timeout=10)
 cursor = connection.cursor()
 
+#For each row, if the location is not already in the database insert into SQLite
 for index, row in Location.iterrows():
-    cursor.execute("SELECT LatLong FROM locations WHERE LatLong = ?", (row['LatLong'],))
+    cursor.execute("SELECT location_ID FROM Locations WHERE location_ID = ?", (row['location_ID'],))
     match = cursor.fetchall()
     if len(match) == 0:
         cursor.execute('insert into locations values(?,?,?,?,?)', row)
@@ -48,81 +48,46 @@ for index, row in Location.iterrows():
 
 connection.commit()
 
-
-#################################################
+#%%
 # CREATING THE TYPE TABLE
 
-typetable = shortTable.drop(['OID_', 'Lat', 'Long', 'LatLong', 'event_date'], axis=1)
-statistic = list(typetable)
-description = list()
+#drop un-needed columns
+header = list(data) #list of column names in original dataset
+droplist = ['OID_', 'Lat', 'Long', 'LatLong', 'event_date'] 
+typetable = shortTable
+for item in header:
+    if item in droplist:
+        typetable = typetable.drop(item, axis=1)
 
-#types = pd.DataFrame({'Statistic':statistic, 'Description': description})
-
-
+#For each type of statistic, insert it into the SQLite if it is not already in
+        #the database. Asign its type_ID and description. 
+statistic = list(typetable) #list of column names in new dataset
 for stat in statistic:
-    cursor.execute("SELECT Statistic FROM types WHERE Statistic = ?", (stat,))
+    cursor.execute("SELECT Statistic FROM Types WHERE Statistic = ?", (stat,))
     statmatch = cursor.fetchall()
     if len(statmatch) == 0:
         if stat == ('rh' or 'max15' or 'hrs2' or 'hrs72'):
-            cursor.execute('insert into types values(?,?)', (stat, 'Rainfall'))
+            cursor.execute('insert into types values(?,?,?)', (stat, stat, 'Rainfall'))
             connection.commit()
         elif stat == ('td_3av' or 'td_3l' or 'td_3h'):
-            cursor.execute('insert into types values(?,?)', (stat, 'Tide Level'))
+            cursor.execute('insert into types values(?,?,?)', (stat, stat, 'Tide Level'))
             connection.commit()
         elif stat == ('AWDR' or 'AWND' or 'WGF6'):
-            cursor.execute('insert into types values(?,?)', (stat, 'Wind Speed'))
+            cursor.execute('insert into types values(?,?,?)', (stat, stat, 'Wind Speed'))
             connection.commit()
         elif stat == ('gw'):
-            cursor.execute('insert into types values(?,?)', (stat, 'Groundwater Level'))
+            cursor.execute('insert into types values(?,?,?)', (stat, stat, 'Groundwater Level'))
             connection.commit()
         elif stat == ('f_nf'):
-            cursor.execute('insert into types values(?,?)', (stat, 'Flood Indicator'))
+            cursor.execute('insert into types values(?,?,?)', (stat, stat, 'Flood Indicator'))
             connection.commit()
         else:
-            cursor.execute('insert into types values(?,?)', (stat, 'Topographic'))
+            cursor.execute('insert into types values(?,?,?)', (stat, stat, 'Topographic'))
             connection.commit()
 
 connection.commit()
-connection.close()
 
-
-#################################################
-# CREATING THE VALUES TABLE
-
-# Modify the table to exclude OID, Long, and Lat
-subTable = data.drop(['OID_', 'LatLong'], axis=1)
-shortTable = subTable[0:10]
-# print(subTable.shape)
-
-# Stack the columns of the table using the melt function
-Values = pd.melt(shortTable, id_vars=['event_date', 'Lat', 'Long'])
-Values = Values.reindex(columns=['event_date', 'Lat', 'Long', 'variable', 'value', 'location_ID'])
-
-# The number of rows of the stacked table is now 15X the rows of the
-# subtable because there were 15 columns stacked
-#print("Sub table dimensions:", shortTable.shape)
-#print("Values table dimensions:", Values.shape)
-
-# Get the location id
-#location2 = Location
-#location2['Lat'] = location2['Lat'].astype(str)
-#location2['Long'] = location2['Long'].astype(str)
-#location2["LatLong"] = location2["Lat"].map(str) + location2["Long"]
-#print(location2[0:10])
-
-Values['Lat'] = Values['Lat'].astype(str)
-Values['Long'] = Values['Long'].astype(str)
-Values["LatLong"] = Values["Lat"].map(str) + Values["Long"]
-
-#Values['location_ID'] = Values['location_ID'].map(location2.set_index('LatLong')['location_ID'])
-#print(Values[0:10])
-
-listKey = list(range(len(data)))
-seriesKey = pd.Series(listKey)
-Values.insert(loc=0, column='value_ID', value=seriesKey)
-# print(Values.head(1000))
-
-#######################################################
+#%%
 # CONVERTING EVENT DATE TO datetime
 
 # To read the csv file into python
@@ -147,31 +112,41 @@ Values.insert(loc=0, column='value_ID', value=seriesKey)
     #else:
         #datetime_ed = datetime.strptime(row['event_date'], "%b_%d_%H:%M %Y").strftime("%Y-%m-%d %H:%M")
 
-#####################################################
-## MAKING THE CONNECTION TO SQL SERVER
-connection = sqlite3.connect("fdata.db", timeout=10)
+#%%
+# CREATING THE VALUES TABLE
 
-cursor = connection.cursor()
+# Modify the original table to exclude OID, Long, and Lat
+droplist2 = ['OID_', 'Lat', 'Long'] 
+subTable = shortTable
+for item in header:
+    if item in droplist2:
+        subTable = subTable.drop(item, axis=1)
+#print(shortTable.shape)
 
-# print(len(Values))
-c = list(zip(*[Values[col] for col in Values]))
-# print(c[0])
+# Stack the columns of the table using the melt function
+        # The melt function creates a row for each datapoint and specifies its
+        #type in a variable column
+Values = pd.melt(subTable, id_vars=['event_date', 'LatLong'])
+Values = Values.reindex(columns=['event_date', 'value', 'variable', 'LatLong'])
+Values.rename(index=str, columns={"variable": "type_ID", "LatLong": "location_ID"})
+#print(Values.head(10))
+#print(Values.shape)
 
-for i in c:
-    format_str = """INSERT INTO fevent (value_ID, event_date, Lat, Long, variable, value, location_ID, LatLong)
- VALUES (NULL, "{event_date}", "{Lat}", "{Long}", "{variable}", "{value}", "{location_ID}", "{LatLong}");"""
-    sql_command = format_str.format(event_date=i[1], Lat=i[2], Long=i[3], variable=i[4], value=i[5], location_ID=i[6],
-                                    LatLong=i[7])
-    cursor.execute(sql_command)
+#For each row in the stacked dataset insert it into the database
+for index, row in Values.iterrows():
+    cursor.execute('insert into Vals values(?,?,?,?)', row)
     connection.commit()
 
-##Testing: just putting in a row of 1's
-# format_str = """INSERT INTO fevent (value_ID, event_date, Lat, Long, variable, value, location_ID, LatLong)
-# VALUES (NULL, "{event_date}", "{Lat}", "{Long}", "{variable}", "{value}", "{location_ID}", "{LatLong}");"""
-# sql_command = format_str.format(event_date=2, Lat=2, Long=2, variable=2, value = 1, location_ID =1, LatLong=1)
-# cursor.execute(sql_command)
+connection.commit()
+connection.close() #close the connection
+
+#%%
+## TESTING THE DATABASE
+
+#connection = sqlite3.connect("fdata.db", timeout=10)
+#cursor = connection.cursor()
 
 # pd.read_sql_query("SELECT * FROM fevent", connection)
 
-connection.commit()
-connection.close()
+#connection.commit()
+#connection.close()
