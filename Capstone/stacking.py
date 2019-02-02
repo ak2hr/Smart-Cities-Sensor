@@ -10,7 +10,13 @@ from dateutil.parser import parse
 import time
 import string
 
+start = time.time()
+print("hello")
+
 data = pd.read_csv("for_RF_model.csv") # reading csv file
+end = time.time()
+print(end - start)
+quit()
 #print("Original table dimensions:", data.shape)  # displaying data frame
 
 # Add a LatLong column to the data to pair the Lat and Long data
@@ -20,6 +26,22 @@ data["LatLong"] = data["Lat"].map(str) + data["Long"]
 
 #Shorten the table and use "chunking" to shorten the run time
 shortTable = data[0:10]
+
+# CONVERTING EVENT DATE TO datetime
+
+shortTable["event_date"] = shortTable["event_date"] + ":00 2017"
+
+for index,row in shortTable.iterrows():
+    if row['event_date'][0:10] == "March":
+        datetime_ed = datetime.strptime(row['event_date'], "%B_%d_%H:%M %Y").strftime("%Y-%m-%d %H:%M")
+    elif row['event_date'][0:10] == "Aug18":
+        row['event_date'] = string.replace(row['event_date'],'Aug18', 'Aug')
+        datetime_ed = datetime.strptime(row['event_date'], "%b_%d_%H:%M %Y").strftime("%Y-%m-%d %H:%M")
+    else:
+        datetime_ed = datetime.strptime(row['event_date'], "%b_%d_%H:%M %Y").strftime("%Y-%m-%d %H:%M")
+
+shortTable.event_date = datetime_ed
+print(shortTable.event_date.head())
 
 #%%
 # CREATING THE LOCATION TABLE
@@ -87,31 +109,7 @@ for stat in statistic:
 
 connection.commit()
 
-#%%
-# CONVERTING EVENT DATE TO datetime
 
-"""To read the csv file into python
-dirname = os.path.dirname(__file__)
-path = os.path.join(dirname, "for_RF_model.csv")
-data = pd.read_csv(path, sep=",")
-
-print(data.head())
-print(type(data['event_date'][0]))
-
-data["event_date"] = data["event_date"] + ":00 2017"
-saved_column = data.event_date
-saved_column = saved_column.replace("_", " ")
-print(saved_column.head())
-for index, row in data.iterrows():
-    if row['event_date'][0:5] == "March":
-        datetime_ed = datetime.strptime(row['event_date'], "%B_%d_%H:%M %Y").strftime("%Y-%m-%d %H:%M")
-    elif row['event_date'][0:5] == "Aug18":
-        row['event_date1'] = string.replace(row['event_date'], 'Aug18', 'Aug')
-        datetime_ed = datetime.strptime(row['event_date1'], "%b_%d_%H:%M %Y").strftime("%Y-%m-%d %H:%M")
-        print(row['event_date'])
-    else:
-        datetime_ed = datetime.strptime(row['event_date'], "%b_%d_%H:%M %Y").strftime("%Y-%m-%d %H:%M")
-"""
 #%%
 # CREATING THE VALUES TABLE
 
