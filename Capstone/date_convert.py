@@ -82,3 +82,5 @@ for x in data.index:
 
 for x in data.index:
     print(str(date_convert(data["event_date"][x])) + str(x))
+    
+data.to_csv('C:\\Users\\pc\\Documents\\data.csv'),encoding='UTF-8')
