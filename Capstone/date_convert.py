@@ -1,16 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Mar  7 23:17:51 2019
-
-@author: pc
-"""
-
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Mar  7 22:58:16 2019
-
-@author: pc
-"""
 
 import pandas as pd
 import csv
@@ -25,7 +13,7 @@ import copy
 # To read the csv file into python
 dirname = os.path.dirname(__file__)
 path = os.path.join(dirname, "for_RF_modeltest_practice.csv")
-data = pd.read_csv("C:/Users/pc/Downloads/for_RF_modeltest_practice (2).csv", sep=",")
+data = pd.read_csv("~/Downloads/for_RF_modeltest_practice.csv", sep=",")
 
 # To create an empty column to write the new values in
 data["datetime"] = ""
@@ -83,4 +71,4 @@ for x in data.index:
 for x in data.index:
     print(str(date_convert(data["event_date"][x])) + str(x))
     
-data.to_csv('C:\\Users\\pc\\Documents\\data.csv'),encoding='UTF-8')
+data.to_csv("~/Desktop/data.csv",encoding='UTF-8')
