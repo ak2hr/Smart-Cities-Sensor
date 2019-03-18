@@ -21,15 +21,13 @@ data["datetime"] = ""
 # Create new dataframe for datetime values
 # To add mins: microseconds to the end of the event_date string
 data["event_date"] = data["event_date"] + ":00:00:000000"
+# Add year to the end of the "event_date" string
 data["event_date"] = data["event_date"] + "_2017"
-print(data["event_date"])
+#print(data["event_date"])
 data2 = pd.DataFrame()
 data2["event_date"] = data["event_date"]
 data2["datetime"] = ""
-print(data2["event_date"])
-
-
-# Add year to the end of the "event_date" string
+#print(data2["event_date"])
 
 def date_convert(x):
     if x[0:5] == "March":  # If the first five character equal March
@@ -70,5 +68,6 @@ for x in data.index:
 
 for x in data.index:
     print(str(date_convert(data["event_date"][x])) + str(x))
-    
+
+del data["event_date"]    
 data.to_csv("~/Desktop/data.csv",encoding='UTF-8')
