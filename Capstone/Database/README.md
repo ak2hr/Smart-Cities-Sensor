@@ -33,10 +33,17 @@ datetime format. This is necessary because the database needs a standardized
 format for time to allow for future analysis on time series data. 
 Datetime format is the most widley used for timeseries data. 
 
+The script is only useful for the eventdate format currently probided in the 
+flooddata.csv. The data provided in this csv has been used for random forest
+machine learning models to predict flooding. 
+
 Once the event date is converted to date time, it can either be exported as another 
 csv or continued to be used as a Pandas python dataframe for the stacking.py script. 
 
+### sqlTables.py
 
+sqlTables.py reads the flooddata.csv and formats the data to fit the ERD found in 
+the Database Design Pros/Cons PDF. It then inserts the data into a SQLite database.
 
 
 
