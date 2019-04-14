@@ -46,13 +46,7 @@ shortTable.event_date = datetime_ed
 print(shortTable.event_date.head())"""
 
 #%%
-# CREATING THE LOCATION TABLE
-
-#time with 10 rows, all new data: ~1.4 seconds 
-#time with 10 rows, no new data: ~0.011 seconds
-#time with 100,000 rows, all new data: ~157.34 seconds
-#time with 100,000 rows, no new data: ~0.62 seconds
-# dont think the time is significant in this table 
+# CREATING THE LOCATION TABLE 
 
 location_start = time.time()
 
