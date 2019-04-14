@@ -1,5 +1,5 @@
 """
-This script pulls current tide level data from the NOAA API using the url shown. The values are extracted from the $
+This script pulls current tide level data from the sensor using the url shown. The values are extracted from the $
 file and put in a dataframe. The data is then appended to the Influx database table with the connection and cursor.
 """
 import pandas as pd
