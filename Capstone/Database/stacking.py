@@ -136,7 +136,6 @@ print("type time", type_end - type_start)
 #cursor = connection.cursor()
 
 vals_start = time.time()
-#time with 10 rows, all new data: ~15.1 seconds 
 #time with 100,000 rows, all new data: ~1.9 seconds
 
 # Modify the original table to exclude OID, Long, and Lat
