@@ -25,7 +25,10 @@ internet.
 
 ### datetimeconversion.py
 
-
+This code reads the flooddata.csv and converts its current fromat to 
+datetime format. This is necessary because the database needs a standardized
+format for time to allow for future analysis on time series data. 
+Datetime format is the most widley used 
 
 
 
