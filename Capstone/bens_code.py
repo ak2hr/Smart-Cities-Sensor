@@ -75,4 +75,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-pull_tide_a
