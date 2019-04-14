@@ -1,4 +1,4 @@
-# Creating the tables in SQLite
+# Creating the tables in SQLite database
 import sqlite3
 
 connection = sqlite3.connect("fdata.db", timeout=10)
