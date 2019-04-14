@@ -1,9 +1,33 @@
-Arduino-LMIC library
+Database Conversion library
 ====================
-This repository contains the IBM LMIC (LoraMAC-in-C) library, slightly
-modified to run in the Arduino environment, allowing using the SX1272,
-SX1276 tranceivers and compatible modules (such as some HopeRF RFM9x
-modules).
+This repository contains the Database Converstion library, that takes
+flood data in two different formats (either csv or a JSON url) and 
+inputs it into two different databases (SQLite or InfluxDB). 
+
+The purpose of the scripts contained in this library is to organize and
+format flood data collected by sensors and the GPS service Waze. The 
+databases can improve accessablility, vizualization, querying, and 
+analysis. 
+
+Historical data to SQLite
+----------
+
+Data from sesnors that have previously been deployed in Norfolk, VA. and
+crowd sourced data from Waze are stored in a CSV. Converting the CSV
+to a retational and locally hosted database can facilitate future use cases
+by allowing queries on items such as locations or types and a standardization
+of the event date. 
+
+SQLite is a locally hosted database, so only those with access to the fdata.db
+can utilize it. This allowed for quick and simple construction, and rudimentary 
+use cases. In the future it may be nice for the database to be hosted on the 
+internet. 
+
+
+
+
+
+## Below is from Sean Allen to see format etc.
 
 This library mostly exposes the functions defined by LMIC, it makes no
 attempt to wrap them in a higher level API that is more in the Arduino
