@@ -66,6 +66,12 @@ it drops the ones that are uneeded and created a dataframe like the location
 table. For each type of statistic, the script uses if statements to simultaneously
 assign its type ID and description and insert it into the database. 
 
+The values table is created using the melt function, which stacks all of the columns 
+in the csv on top of each other. It then pairs each value with its type and location 
+ID using the temporary latlong field which is stored in each table. The latlong field
+is a string that is a combination of the latitude and longitude. The script
+then inserts the data into sqlite row by row. This can take a lot of time 
+if inserting many rows. 
 
 ## Below is from Sean Allen to see format etc.
 
