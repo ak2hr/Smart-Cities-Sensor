@@ -42,8 +42,16 @@ csv or continued to be used as a Pandas python dataframe for the stacking.py scr
 
 ### sqlTables.py
 
-sqlTables.py reads the flooddata.csv and formats the data to fit the ERD found in 
-the Database Design Pros/Cons PDF. It then inserts the data into a SQLite database.
+sqlTables.py uses Python's sqlite3 module to create tables in SQLite in the 
+format of the ERD found in Database Design Pros/Cons PDF. 
+
+Before running this code a blank database must be created in SQLite
+
+### stacking.py
+
+stacking.py reads the flooddata.csv and formats the data to fit the ERD found in 
+the Database Design Pros/Cons PDF. It then inserts the data into the tables
+in the SQLite database created with sqlTables.py.
 
 
 
