@@ -23,12 +23,20 @@ can utilize it. This allowed for quick and simple construction, and rudimentary
 use cases. In the future it may be nice for the database to be hosted on the 
 internet. 
 
+Consideration for the relational database design and the enitity relationship
+diagram can be found in the Database Design Pros/Cons PDF.
+
 ### datetimeconversion.py
 
-This code reads the flooddata.csv and converts its current fromat to 
+This script reads the flooddata.csv and converts its current fromat to 
 datetime format. This is necessary because the database needs a standardized
 format for time to allow for future analysis on time series data. 
-Datetime format is the most widley used 
+Datetime format is the most widley used for timeseries data. 
+
+Once the event date is converted to date time, it can either be exported as another 
+csv or continued to be used as a Pandas python dataframe for the stacking.py script. 
+
+
 
 
 
