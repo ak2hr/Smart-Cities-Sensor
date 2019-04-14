@@ -53,6 +53,18 @@ stacking.py reads the flooddata.csv and formats the data to fit the ERD found in
 the Database Design Pros/Cons PDF. It then inserts the data into the tables
 in the SQLite database created with sqlTables.py.
 
+To create the location table the script uses the groupby function to get 
+each unique combination of latitudes and longituteds. It then creates
+a dataframe with a unique identifier for each location, and blank columns
+for the street and descritpion to be filled in in the future. The script 
+then inserts this table into SQLite row by row. Because there are only a 
+couple thousand unique locations inserting row by row is not unefficient 
+in this case. 
+
+To create the types table the script makes a list of all of the column headers,
+it drops the ones that are uneeded and created a dataframe like the location
+table. For each type of statistic, the script uses if statements to simultaneously
+assign its type ID and description and insert it into the database. 
 
 
 ## Below is from Sean Allen to see format etc.
