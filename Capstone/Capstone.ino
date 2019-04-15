@@ -13,8 +13,8 @@ const char *appKey = "F8ABB3938C5FBBCED8EFD664CA370760";
 TheThingsNetwork ttn(loraSerial, debugSerial, freqPlan);
 
 //Pins
-#define trigPin 13
-#define echoPin 12
+#define trigPin  8
+#define readPin   A0
 
 //Const Variables
 // Values lowered for monitoring values during testing
@@ -26,18 +26,21 @@ int runningAvg;
 int baseline;
 EventTimer timer;
 int lastReportedValue;
-int thisReportedValue;
 bool fastMode;
+bool baselineCheck = true;
 
 void setup() {    
   loraSerial.begin(57600);
   debugSerial.begin(9600);  
-  pinMode(A0, INPUT);
+  pinMode(readPin, INPUT);  
+  pinMode(trigPin, OUTPUT);
+  digitalWrite(trigPin, LOW);
   runningAvg = 0;
-  //baseline = getDistance();
+  baseline = getDistance();
+  baselineCheck = false;
   debugSerial.print("BASELINE: ");
   debugSerial.println(baseline);
-  thisReportedValue = baseline;
+  lastReportedValue = baseline;
   fastMode = false;
   ttn.showStatus();
   debugSerial.println("-- JOIN");
@@ -74,23 +77,39 @@ int getDistance()
   float val; 
   long cm = 0;
   float avg;
-
+  int count = 0;
+  digitalWrite(trigPin, HIGH);
   for (int i = 0; i < 60; i++){
-    timer.start(1000);
-    val = analogRead(A0) * 5.0/1023;
-    cm += (val/0.0049);
+    timer.start(1000);            
+    val = (analogRead(A0) * 5.0/1023)/0.0049;    
+    if(val < lastReportedValue + 20 && val > lastReportedValue - 20) {
+      cm += val;  
+      count++;    
+    }
+    else if(baselineCheck) {
+      cm += val;  
+      count++;
+    }
+    else {
+      debugSerial.print("REJECTED - ");
+    }
     debugSerial.print("Distance Value ");
     debugSerial.print(i);
     debugSerial.print(": ");
-    debugSerial.print(val/0.0049);
+    debugSerial.print(val);
     debugSerial.print(", total value: ");
     debugSerial.println(cm);
     while(!timer.checkExpired()) {
       continue;
     }
   }
-
-  avg = cm / 60.0;
+  digitalWrite(trigPin, LOW);
+  if(count == 0) {
+    avg = 0;
+  }
+  else {
+    avg = cm / count;
+  }
   debugSerial.print("Average Value: ");
   debugSerial.println(avg);
   return avg;
