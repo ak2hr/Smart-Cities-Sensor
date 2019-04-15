@@ -73,6 +73,47 @@ is a string that is a combination of the latitude and longitude. The script
 then inserts the data into sqlite row by row. This can take a lot of time 
 if inserting many rows. 
 
+Sensor Data to InfluxDB
+----------
+
+The second half of the project was to create a method for organizing,
+storing, and visualizing live sensor data. This can be used for near
+real time analysis of flooding in Norfolk. Influx is used for timeseries
+data like the water level sensor data. It also pairs well with the visualization
+tool grafana. 
+
+The Influx database is hosted on a Google Cloud virtual machine with
+external IP 35.211.193.104. 
+
+To access Influx:
+- open an SSH terminal within the virtual machine
+- enter "influx"
+- enter "auth admin dMIST 2018" which is the username and password
+- to view the databases enter "show databases"
+- to use a database enter "use [data base name]"
+- To view different tables enter "show measurements"
+- To view the data within a table enter "select * from [measurement]"
+- More documentation on influx can be found online
+
+### water_level.py
+
+This script must be run on the virtual machine. 
+
+It must be uploaded in the ssh terminal then enter the command 
+"python water_level.py" to run. 
+
+For the code to run the user's virtual environement must have Python 2.7,
+anaconda, and Pandas 2.19.
+
+The script will run until terminated and updates every 6 seconds. Its output
+indicates weather new data has been added to influx or not. 
+
+- The script takes a URL as an input that contains data in JSON format. 
+
+- The script uses a .txt file to store the previous datetime from each time it
+updates. It then checks if the current datetime is different. If so it parses the
+JSON from the given 
+
 ## Below is from Sean Allen to see format etc.
 
 This library mostly exposes the functions defined by LMIC, it makes no
