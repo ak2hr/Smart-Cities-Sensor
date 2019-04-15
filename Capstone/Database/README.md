@@ -26,7 +26,7 @@ internet.
 Consideration for the relational database design and the enitity relationship
 diagram can be found in the Database Design Pros/Cons PDF.
 
-### datetimeconversion.py
+### dateconvert.py
 
 This script reads the flooddata.csv and converts its current fromat to 
 datetime format. This is necessary because the database needs a standardized
