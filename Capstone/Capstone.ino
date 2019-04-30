@@ -2,7 +2,7 @@
 #include <eventtimer.h>
 #include <TheThingsNetwork.h>
 const char *appEui = "70B3D57ED0014EEF";
-const char *appKey = "F8ABB3938C5FBBCED8EFD664CA370760";
+const char *appKey = "D5A057BD36B7E74F65183907A5D9424A";
 
 #define loraSerial Serial1
 #define debugSerial Serial
@@ -18,8 +18,7 @@ TheThingsNetwork ttn(loraSerial, debugSerial, freqPlan);
 
 //Const Variables
 // Values lowered for monitoring values during testing
-const int slowModeIntervalTime = 10; //15*60
-const int fastModeIntervalTime = 1; //60
+const int slowModeIntervalTime = 15*60; // 15 minutes * 60 seconds = number of seconds to sleep for
 
 //Global Variables
 int runningAvg;
@@ -36,38 +35,26 @@ void setup() {
   pinMode(trigPin, OUTPUT);
   digitalWrite(trigPin, LOW);
   runningAvg = 0;
+  delay(120000);
   baseline = getDistance();
   baselineCheck = false;
   debugSerial.print("BASELINE: ");
   debugSerial.println(baseline);
   lastReportedValue = baseline;
-  fastMode = false;
+  fastMode = true;
   ttn.showStatus();
   debugSerial.println("-- JOIN");
   ttn.join(appEui, appKey);  
 }
 
-void loop() {
-  // Will need to keep in fastmode as levels rise, maybe different criteria for if already in fastmode
-//    if (thisReportedValue > (lastReportedValue >> 4))
-//    {
-//        fastMode = true;
-//    }
-//    else
-//    {
-//        fastMode = false;
-//    }
-//
-//    lastReportedValue = thisReportedValue;
+void loop() {  
     if(fastMode) {
-      sendData(getDistance());
-      //sleepLowPower(fastModeIntervalTime);
+      sendData(getDistance());      
     }
     else {
       sendData(getDistance());
-      //sleepLowPower(slowModeIntervalTime);
-    }
-    delay(5000);
+      sleepLowPower(slowModeIntervalTime);
+    }    
 }
 
 //getDistance - Function that gets a single distance point from the ultrasonic sensor-----------------------------------------------------------------------
@@ -111,8 +98,17 @@ int getDistance()
     avg = cm / count;
   }
   debugSerial.print("Average Value: ");
-  debugSerial.println(avg);
-  return avg;
+  debugSerial.println(baseline - avg);
+  if(baselineCheck) {
+    baselineCheck = false;
+    return avg;
+  }
+  if(avg > baseline) {
+    return baseline;
+  }
+  else {
+    return baseline - avg;
+  }
 }
 
 //sendData - Sends the flood level reading data point to the Things Network/Database------------------------------------------------------------------------
